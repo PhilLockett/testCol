@@ -61,6 +61,7 @@ public:
         return os;
 	}
 
+#define DISPLAY_COMP(oper) std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") " << oper << " 0 " << comp << std::endl;
     int compare(const Tracker & rhs) const
 	{
 		if (const int diff{id - rhs.id}; diff != 0) return diff;
@@ -72,25 +73,29 @@ public:
 	bool operator<(const Tracker& rhs) const
 	{
 		const bool comp{compare(rhs) < 0};
-		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") < 0 " << comp << std::endl;
+		DISPLAY_COMP("<")
+
 		return comp;
 	}
 	bool operator>(const Tracker& rhs) const
 	{
 		const bool comp{compare(rhs) > 0};
-		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") > 0 " << comp << std::endl;
+		DISPLAY_COMP(">")
+
 		return comp;
 	}
 	bool operator==(const Tracker& rhs) const
 	{
 		const bool comp{compare(rhs) == 0};
-		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") == 0 " << comp << std::endl;
+		DISPLAY_COMP("==")
+
 		return comp;
 	}
 	bool operator!=(const Tracker& rhs) const
 	{
 		const bool comp{compare(rhs) != 0};
-		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") != 0 " << comp << std::endl;
+		DISPLAY_COMP("!=")
+
 		return comp;
 	}
 
@@ -159,7 +164,6 @@ struct TrackerOps
 {
 	bool operator()(const Tracker & lhs, const Tracker & rhs) const
 	{
-		std::cout << std::boolalpha << lhs << " < " << rhs << " -> " << (lhs < rhs) << "\n";
 		return lhs < rhs;
 	}
 

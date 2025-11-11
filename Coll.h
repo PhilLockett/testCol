@@ -18,101 +18,111 @@
  *
  * @section DESCRIPTION
  *
- * Interface for the Collection Implementation.
+ * Interface for the sorted Collection Implementation.
  */
 
 #if !defined(_COLL_H__20231129_0956__INCLUDED_)
 #define _COLL_H__20231129_0956__INCLUDED_
 
 #include <string>
-#include <memory>
 #include <set>
 #include <vector>
 #include <map>
 
-template<typename T=std::string, class C=std::less<T>>
+template<typename T=std::string>
 class Coll
 {
+private:
+    std::set<T> _set;
+    std::vector<T> _vector;
+    std::map<T, size_t> _map;
+
 public:
     Coll() : _set{}, _vector{}, _map{} {}
     // virtual ~Coll() {}
 
-    using P = typename std::shared_ptr<T>;
-
-    typename std::set<P, C>::iterator add(const T & target);
+    typename std::set<T>::iterator add(const T & target);
+    typename std::set<T>::iterator insert(T & target);
 
     void loaded(void);
+    void clear(void) { _set.clear(); _vector.clear(); _map.clear(); }
 
-    // bool isContained(const T & item) const { return _map.contains(item); }
-    // bool isIndex(size_t index) const { return index >= _vector.size(); }
+    bool isContained(const T & item) const { return _map.contains(item); }
+    bool isIndex(size_t index) const { return index >= _vector.size(); }
 
-    // size_t getIndex(const T & item) const { return _map.at(item); }
-    // T & getValue(size_t index) { return _vector.at(index); }
+    size_t getIndex(const T & item) const { return _map.at(item); }
+    const T & getValue(size_t index) const { return _vector.at(index); }
 
-    // const T & operator[](size_t index) const { return _vector[index]; }
+    const T & operator[](size_t index) const { return _vector[index]; }
 
     size_t size(void) const { return _vector.size(); }
 
-    // using CIterator = typename std::vector<T>::const_iterator;
-    // const CIterator begin(void) const { return _vector.begin(); }
-    // const CIterator end(void) const { return _vector.end(); }
+    using Iterator = typename std::vector<T>::const_iterator;
+    const Iterator begin(void) const { return _vector.begin(); }
+    const Iterator end(void) const { return _vector.end(); }
 
-    // using Iterator = typename std::vector<T>::iterator;
-    // Iterator begin(void) { return _vector.begin(); }
-    // Iterator end(void) { return _vector.end(); }
-
-    size_t dump(void) const;
+    size_t display(void) const;
     // std::string toString(void) const;
-
-private:
-    std::set<P, C> _set;
-    std::vector<P> _vector;
-    std::map<P, size_t> _map;
 
 };
 
-// template<typename T, class C>
-// struct CollOps
-// {
-//     bool operator()( const Coll<T, C> & a, const Coll<T, C> & b ) const
-//         { return a->getZ() < b->getZ(); }
-//     void operator()( const Coll<T, C> & a ) const
-//         { std::cout << a->getZ() << ' ' << a->getName() << '\n'; }
-// };
-
-template<typename T, class C>
-typename std::set<typename Coll<T, C>::P, C>::iterator Coll<T, C>::add(const T & target)
+/**
+ * @brief Copy an entry to the collection, iff it isn't already present.
+ * 
+ * @tparam T type of items in the collection.
+ * @param target to potentially add to collection
+ * @return std::set<T>::iterator for entry in the collection.
+ */
+template<typename T>
+typename std::set<T>::iterator Coll<T>::add(const T & target)
 {
-    P p{std::make_shared<T>(target)};
+    auto result{_set.insert(target)};
 
-    auto [result, inserted] = _set.insert(p);
-
-    std::cout << "p.use_count(): " << p.use_count() << '\n';
-    return result;
+    return result.first;
 }
 
-template<typename T, class C>
-void Coll<T, C>::loaded(void)
+/**
+ * @brief Move an entry to the collection, iff it isn't already present.
+ * 
+ * @tparam T type of items in the collection.
+ * @param target to potentially add to collection
+ * @return std::set<T>::iterator for entry in the collection.
+ */
+template<typename T>
+typename std::set<T>::iterator Coll<T>::insert(T & target)
+{
+    auto result{_set.insert(std::move(target))};
+
+    return result.first;
+}
+
+/**
+ * @brief Called after all entries have been added to the collection.
+ * 
+ * @tparam T type of items in the collection.
+ */
+template<typename T>
+void Coll<T>::loaded(void)
 {
     _vector.reserve(_set.size());
 
     size_t i{};
-    for (const P & item : _set)
+    for (const T & item : _set)
     {
-        _vector.push_back(item);
         _map[item] = i++;
+        _vector.push_back(std::move(item));
     }
 }
 
 
-template<typename T, class C>
-size_t Coll<T, C>::dump(void) const
+template<typename T>
+size_t Coll<T>::display(void) const
 {
     size_t i{};
-    for (const P & item : _vector)
-        std::cout << i++ << "\t" << *item << "\n";
+    for (const auto & item : _vector)
+        std::cout << i++ << "\t" << item << "\n";
 
-    std::cout << "\n";
+    std::cout << std::endl;
 
     return i;
 }
