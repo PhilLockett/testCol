@@ -28,8 +28,9 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <utility>
 
-template<typename T=std::string, class C = std::less<T>>
+template<typename T=std::string, class C = std::less<T>, class... Args>
 class Coll
 {
 public:
@@ -61,6 +62,8 @@ public:
     size_t dump(void) const;
     // std::string toString(void) const;
 
+typename std::set<T, C>::iterator emplace(Args&&... args);
+
 private:
     std::set<T, C> _set;
     std::vector<T> _vector;
@@ -68,16 +71,24 @@ private:
 
 };
 
-template<typename T, class C>
-typename std::set<T, C>::iterator Coll<T, C>::add(const T & target)
+template<typename T, class C, class... Args>
+typename std::set<T, C>::iterator Coll<T, C, Args...>::emplace(Args&&... args)
+{
+    auto [result, inserted] = _set.emplace(std::forward<Args>(args)...);
+
+    return result;
+}
+
+template<typename T, class C, class... Args>
+typename std::set<T, C>::iterator Coll<T, C, Args...>::add(const T & target)
 {
     auto [result, inserted] = _set.insert(target);
 
     return result;
 }
 
-template<typename T, class C>
-void Coll<T, C>::loaded(void)
+template<typename T, class C, class... Args>
+void Coll<T, C, Args...>::loaded(void)
 {
     _vector.reserve(_set.size());
 
@@ -90,8 +101,8 @@ void Coll<T, C>::loaded(void)
 }
 
 
-template<typename T, class C>
-size_t Coll<T, C>::dump(void) const
+template<typename T, class C, class... Args>
+size_t Coll<T, C, Args...>::dump(void) const
 {
     size_t i{};
     for (const T & item : _vector)
