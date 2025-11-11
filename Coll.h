@@ -25,75 +25,79 @@
 #define _COLL_H__20231129_0956__INCLUDED_
 
 #include <string>
+#include <memory>
 #include <set>
 #include <vector>
 #include <map>
-#include <utility>
 
-template<typename T=std::string, class C = std::less<T>, class... Args>
+template<typename T=std::string, class C=std::less<T>>
 class Coll
 {
 public:
     Coll() : _set{}, _vector{}, _map{} {}
     // virtual ~Coll() {}
 
-    typename std::set<T, C>::iterator add(const T & target);
+    using P = typename std::shared_ptr<T>;
+
+    typename std::set<P, C>::iterator add(const T & target);
 
     void loaded(void);
 
-    bool isContained(const T & item) const { return _map.contains(item); }
-    bool isIndex(size_t index) const { return index >= _vector.size(); }
+    // bool isContained(const T & item) const { return _map.contains(item); }
+    // bool isIndex(size_t index) const { return index >= _vector.size(); }
 
-    size_t getIndex(const T & item) const { return _map.at(item); }
-    T & getValue(size_t index) { return _vector.at(index); }
+    // size_t getIndex(const T & item) const { return _map.at(item); }
+    // T & getValue(size_t index) { return _vector.at(index); }
 
-    const T & operator[](size_t index) const { return _vector[index]; }
+    // const T & operator[](size_t index) const { return _vector[index]; }
 
     size_t size(void) const { return _vector.size(); }
 
-    using CIterator = typename std::vector<T>::const_iterator;
-    const CIterator begin(void) const { return _vector.begin(); }
-    const CIterator end(void) const { return _vector.end(); }
+    // using CIterator = typename std::vector<T>::const_iterator;
+    // const CIterator begin(void) const { return _vector.begin(); }
+    // const CIterator end(void) const { return _vector.end(); }
 
-    using Iterator = typename std::vector<T>::iterator;
-    Iterator begin(void) { return _vector.begin(); }
-    Iterator end(void) { return _vector.end(); }
+    // using Iterator = typename std::vector<T>::iterator;
+    // Iterator begin(void) { return _vector.begin(); }
+    // Iterator end(void) { return _vector.end(); }
 
     size_t dump(void) const;
     // std::string toString(void) const;
 
-typename std::set<T, C>::iterator emplace(Args&&... args);
-
 private:
-    std::set<T, C> _set;
-    std::vector<T> _vector;
-    std::map<T, size_t> _map;
+    std::set<P, C> _set;
+    std::vector<P> _vector;
+    std::map<P, size_t> _map;
 
 };
 
-template<typename T, class C, class... Args>
-typename std::set<T, C>::iterator Coll<T, C, Args...>::emplace(Args&&... args)
-{
-    auto [result, inserted] = _set.emplace(std::forward<Args>(args)...);
+// template<typename T, class C>
+// struct CollOps
+// {
+//     bool operator()( const Coll<T, C> & a, const Coll<T, C> & b ) const
+//         { return a->getZ() < b->getZ(); }
+//     void operator()( const Coll<T, C> & a ) const
+//         { std::cout << a->getZ() << ' ' << a->getName() << '\n'; }
+// };
 
+template<typename T, class C>
+typename std::set<typename Coll<T, C>::P, C>::iterator Coll<T, C>::add(const T & target)
+{
+    P p{std::make_shared<T>(target)};
+
+    auto [result, inserted] = _set.insert(p);
+
+    std::cout << "p.use_count(): " << p.use_count() << '\n';
     return result;
 }
 
-template<typename T, class C, class... Args>
-typename std::set<T, C>::iterator Coll<T, C, Args...>::add(const T & target)
-{
-    auto [result, inserted] = _set.insert(target);
-
-    return result;
-}
-
-template<typename T, class C, class... Args>
-void Coll<T, C, Args...>::loaded(void)
+template<typename T, class C>
+void Coll<T, C>::loaded(void)
 {
     _vector.reserve(_set.size());
 
     size_t i{};
-    for (const T & item : _set)
+    for (const P & item : _set)
     {
         _vector.push_back(item);
         _map[item] = i++;
@@ -101,12 +105,12 @@ void Coll<T, C, Args...>::loaded(void)
 }
 
 
-template<typename T, class C, class... Args>
-size_t Coll<T, C, Args...>::dump(void) const
+template<typename T, class C>
+size_t Coll<T, C>::dump(void) const
 {
     size_t i{};
-    for (const T & item : _vector)
-        std::cout << i++ << "\t" << item << "\n";
+    for (const P & item : _vector)
+        std::cout << i++ << "\t" << *item << "\n";
 
     std::cout << "\n";
 
