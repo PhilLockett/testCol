@@ -45,7 +45,6 @@ private:
 
 	void reveal(const std::string & action) const
 	{
-		// std::cout << id << " " << count << " '" << name << "' " << action << std::endl;
 		std::cout << *this << " " << action << std::endl;
 	}
 
@@ -62,10 +61,9 @@ public:
         return os;
 	}
 
-// #define COMP(lhs, rhs) if (const auto __diff = lhs - rhs; __diff != 0) return __diff;
     int compare(const Tracker & rhs) const
 	{
-		if (const auto diff = id - rhs.id; diff != 0) return diff;
+		if (const int diff{id - rhs.id}; diff != 0) return diff;
 
 		if (const int res{name.compare(rhs.name)}; res != 0) return res;
 
