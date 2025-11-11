@@ -62,17 +62,14 @@ public:
         return os;
 	}
 
-#define COMP(lhs, rhs) if (lhs < rhs) return -1; if (lhs > rhs) return 1; 
+// #define COMP(lhs, rhs) if (const auto __diff = lhs - rhs; __diff != 0) return __diff;
     int compare(const Tracker & rhs) const
 	{
-		COMP(id, rhs.id);
+		if (const auto diff = id - rhs.id; diff != 0) return diff;
 
-		const int res{name.compare(rhs.name)};
-		COMP(res, 0);
+		if (const int res{name.compare(rhs.name)}; res != 0) return res;
 
-		COMP(count, rhs.count);
-
-		return 0;
+		return count - rhs.count;
 	}
 	bool operator<(const Tracker& rhs) const
 	{
@@ -80,18 +77,24 @@ public:
 		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") < 0 " << comp << std::endl;
 		return comp;
 	}
-	// bool operator>(const Tracker& rhs) const
-	// {
-	// 	return compare(rhs) > 0;
-	// }
+	bool operator>(const Tracker& rhs) const
+	{
+		const bool comp{compare(rhs) > 0};
+		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") > 0 " << comp << std::endl;
+		return comp;
+	}
 	bool operator==(const Tracker& rhs) const
 	{
-		return compare(rhs) == 0;
+		const bool comp{compare(rhs) == 0};
+		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") == 0 " << comp << std::endl;
+		return comp;
 	}
-	// bool operator!=(const Tracker& rhs) const
-	// {
-	// 	return compare(rhs) != 0;
-	// }
+	bool operator!=(const Tracker& rhs) const
+	{
+		const bool comp{compare(rhs) != 0};
+		std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") != 0 " << comp << std::endl;
+		return comp;
+	}
 
 	// Constructor.
 	Tracker(int i, std::string n) : id{i}, count{}, name{n}
