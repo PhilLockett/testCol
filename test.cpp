@@ -7,6 +7,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <memory>
+
+#include "electronconfigs.h"
+#include "Element_c.h"
 
 #include "Tracker.h"
 #include "Coll.h"
@@ -14,6 +19,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Worker Functions.
+#ifndef ELEMENTS
+#define ELEMENTS(a) ((sizeof(a)) / (sizeof(a[0])))
+#endif
+
+#define _JOIN_(s1, v1, s2) s1 " " #v1 " " s2
+#define JOINER(s1, v1, s2) _JOIN_(s1, v1, s2)
 
 template<typename T>
 void _dump(std::string name, const T a[], size_t s)
@@ -28,7 +39,6 @@ void _dump(std::string name, const T a[], size_t s)
 
 	std::cout << "}\n";
 }
-#define ELEMENTS(a) ((sizeof(a)) / (sizeof(a[0])))
 #define DUMPARRAY(a) _dump(#a, a, ELEMENTS(a))
 
 template<typename T>
@@ -80,6 +90,9 @@ int test0(void)
 	return 0;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+
 int test1(void)
 {
 	std::cout << "\ntest1() - vector test\n\n";
@@ -122,6 +135,9 @@ int test1(void)
 	return 0;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+
 std::vector<Tracker> test2a(void)
 {
 	std::cout << "\ntest2a()\n\n";
@@ -153,6 +169,9 @@ int test2(void)
 	return 0;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+
 int test3(void)
 {
 	std::cout << "\ntest3() - testing loop scope\n\n";
@@ -174,6 +193,9 @@ int test3(void)
 
 	return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 int test4(void)
 {
@@ -206,7 +228,10 @@ int test4(void)
 	return 0;
 }
 
-int test5a(Coll<Tracker> & coll)
+
+///////////////////////////////////////////////////////////////////////////////
+
+int test5a(Coll<Tracker, TrackerOps> & coll)
 {
 	std::cout << "\ntest5a() - Coll test\n\n";
 
@@ -240,13 +265,78 @@ int test5(void)
 {
 	std::cout << "\ntest5() - Coll test\n\n";
 
-	Coll<Tracker> coll;
+	Coll<Tracker, TrackerOps> coll;
 	test5a(coll);
 	std::cout << "\n";
 	std::cout << "Data collected.\n";
 	coll.display();
+	std::cout << "\n";
 
-	std::cout << "test5() done.\n";
+	std::cout << "test5() done." << std::endl;
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+using ElementPtr = std::shared_ptr<Element_c>;
+
+struct ElementOps
+{
+  bool operator()( const ElementPtr & a, const ElementPtr & b ) const
+    { return a->getZ() < b->getZ(); }
+  void operator()( const ElementPtr & a ) const
+    { std::cout << "  " << a->getZ() << ' ' << a->getName() << '\n'; }
+  void operator()( size_t i, const ElementPtr & a ) const
+    { std::cout << i << "\t" << a->getZ() << ' ' << a->getSymbol() << ' ' << a->getName() << '\n'; }
+};
+
+Coll<ElementPtr, ElementOps> coll{};
+
+void initColZ(void)
+{
+	const int first{ELEMENT_INDEX_FIRST};
+	const int last{ELEMENT_KNOWN_COUNT};
+	// const int last{20};
+	const element_conf_t ** ElementConf = &ElementConfigurations[first];
+	for (int i = first; i <= last; ++i, ++ElementConf)
+	{
+		const ElementPtr element_ptr = std::make_shared<Element_c>(*ElementConf);
+		coll.insert(element_ptr);
+	}
+
+	coll.loaded();
+	std::cout << "coll loaded\n";
+}
+
+int test6a(void)
+{
+	std::cout << "\ntest6a() - set test\n\n";
+
+	struct MyOps
+	{
+		bool operator()( const ElementPtr & a, const ElementPtr & b ) const
+			{ return a->getIndex() < b->getIndex(); }
+		void operator()( const ElementPtr & a ) const
+			{ std::cout << "  " << a->getIndex() << ' ' << a->getZ() << ' ' << a->getSymbol() << ' ' << a->getName() << '\n'; }
+	};
+	Coll<ElementPtr, MyOps> myColl{};
+
+	std::cout << "Loading myColl\n";
+	for (const auto & item : coll)
+	{
+		myColl.insert(item);
+	}
+	myColl.loaded();
+
+	std::cout << "myColl loaded size = " << myColl.size() << "\n";
+
+	std::cout << "\nmyColl for_each():\n";
+	std::for_each( myColl.begin(), myColl.end(), MyOps() );
+	std::cout << "\n";
+
+	std::cout << "\ntest6a() done.\n";
 
 	return 0;
 }
@@ -254,19 +344,39 @@ int test5(void)
 int test6(void)
 {
 	std::cout << "\ntest6() - set test\n\n";
+	initColZ();
 
-	// std::set<int> coll;
+	test6a();
 
-	// coll.insert(60);
-	// coll.insert(61);
-	// coll.insert(62);
+	std::cout << "\ncoll display():\n";
+	coll.display(ElementOps());
+	std::cout << "\n";
 
-	// DUMPSET(coll);
+	std::cout << "\ncoll for():\n";
+	for (const auto item : coll)
+	{
+        std::cout << "\t" << *item << "\n";
+	}
+	std::cout << "\n";
 
-	std::cout << "\ntest6() done.\n";
+	std::cout << "\ncoll for_each():\n";
+	std::for_each( coll.begin(), coll.end(), ElementOps() );
+	std::cout << "\n";
+
+	std::cout << "\ncoll access element:\n";
+	const ElementPtr & e{coll.getValue(9)};
+	const size_t index{coll.getIndex(e)};
+
+	std::cout << e->getName() << " = " << 9 << "\n";
+	std::cout << index << " = " << coll.getValue(index)->getName() << "\n";
+
+	std::cout << "\ntest6() done." << std::endl;
 
 	return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
 {
@@ -289,6 +399,11 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+
+	std::cout << "\ncoll display():\n";
+	coll.display(ElementOps());
+	std::cout << "\n";
+
 	std::cout << "\nmain() done.\n";
 
 	return 0;

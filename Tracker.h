@@ -171,6 +171,12 @@ struct TrackerOps
 	{
 		std::cout << a << std::endl;
 	}
+
+	void operator()(size_t i, const Tracker & a) const
+    {
+		std::cout << i << "\t" << a << "\n";
+	}
+
 };
 
 

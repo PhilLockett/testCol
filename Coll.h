@@ -29,20 +29,20 @@
 #include <vector>
 #include <map>
 
-template<typename T=std::string>
+template<typename T = std::string, class Compare = std::less<T>>
 class Coll
 {
 private:
-    std::set<T> _set;
+    std::set<T, Compare> _set;
     std::vector<T> _vector;
-    std::map<T, size_t> _map;
+    std::map<T, size_t, Compare> _map;
 
 public:
     Coll() : _set{}, _vector{}, _map{} {}
     // virtual ~Coll() {}
 
-    typename std::set<T>::iterator add(const T & target);
-    typename std::set<T>::iterator insert(T & target);
+    typename std::set<T, Compare>::iterator insert(const T & target);
+    typename std::set<T, Compare>::iterator insert(T & target);
 
     void loaded(void);
     void clear(void) { _set.clear(); _vector.clear(); _map.clear(); }
@@ -57,26 +57,29 @@ public:
 
     size_t size(void) const { return _vector.size(); }
 
-    using Iterator = typename std::vector<T>::const_iterator;
-    const Iterator begin(void) const { return _vector.begin(); }
-    const Iterator end(void) const { return _vector.end(); }
+    using Iterator = typename std::vector<T>::iterator;
+    Iterator begin(void) { return _vector.begin(); }
+    Iterator end(void) { return _vector.end(); }
 
+    size_t display(Compare func) const;
     size_t display(void) const;
     // std::string toString(void) const;
 
 };
 
+
 /**
- * @brief Copy an entry to the collection, iff it isn't already present.
+ * @brief Add an entry to the collection, iff it isn't already present.
  * 
  * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
  * @param target to potentially add to collection
- * @return std::set<T>::iterator for entry in the collection.
+ * @return std::set<T, Compare>::iterator for entry in the collection.
  */
-template<typename T>
-typename std::set<T>::iterator Coll<T>::add(const T & target)
+template<typename T, class Compare>
+typename std::set<T, Compare>::iterator Coll<T, Compare>::insert(const T & target)
 {
-    auto result{_set.insert(target)};
+    const auto result{_set.insert(target)};
 
     return result.first;
 }
@@ -85,13 +88,14 @@ typename std::set<T>::iterator Coll<T>::add(const T & target)
  * @brief Move an entry to the collection, iff it isn't already present.
  * 
  * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
  * @param target to potentially add to collection
- * @return std::set<T>::iterator for entry in the collection.
+ * @return std::set<T, Compare>::iterator for entry in the collection.
  */
-template<typename T>
-typename std::set<T>::iterator Coll<T>::insert(T & target)
+template<typename T, class Compare>
+typename std::set<T, Compare>::iterator Coll<T, Compare>::insert(T & target)
 {
-    auto result{_set.insert(std::move(target))};
+    const auto result{_set.insert(std::move(target))};
 
     return result.first;
 }
@@ -100,31 +104,58 @@ typename std::set<T>::iterator Coll<T>::insert(T & target)
  * @brief Called after all entries have been added to the collection.
  * 
  * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
  */
-template<typename T>
-void Coll<T>::loaded(void)
+template<typename T, class Compare>
+void Coll<T, Compare>::loaded(void)
 {
+    _map.clear();
+    _vector.clear();
     _vector.reserve(_set.size());
 
     size_t i{};
     for (const T & item : _set)
     {
         _map[item] = i++;
-        _vector.push_back(std::move(item));
+        _vector.push_back(item);
     }
 }
 
+/**
+ * @brief Display all items in the collection.
+ * 
+ * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
+ * @param func function to call for each item in the collection.
+ * @return size_t number of items displayed.
+ */
+template<typename T, class Compare>
+size_t Coll<T, Compare>::display(Compare func) const
+{
+    size_t i{};
+    for (const T & item : _vector)
+        func(i++, item);
 
-template<typename T>
-size_t Coll<T>::display(void) const
+    return i;
+}
+
+
+/**
+ * @brief Display all items in the collection.
+ * 
+ * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
+ * @return size_t number of items displayed.
+ */
+template<typename T, class Compare>
+size_t Coll<T, Compare>::display(void) const
 {
     size_t i{};
     for (const auto & item : _vector)
         std::cout << i++ << "\t" << item << "\n";
 
-    std::cout << std::endl;
-
     return i;
 }
+
 
 #endif // !defined(_COLL_H__20231129_0956__INCLUDED_)
