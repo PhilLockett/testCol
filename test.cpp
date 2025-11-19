@@ -316,10 +316,14 @@ int test6a(void)
 
 	struct MyOps
 	{
-		bool operator()( const ElementPtr & a, const ElementPtr & b ) const
-			{ return a->getIndex() < b->getIndex(); }
+		bool operator()(const ElementPtr & a, const ElementPtr & b) const
+		{
+			if (const auto diff{a->getMelt() - b->getMelt()}; diff != 0.0) return diff < 0.0;
+
+			return a->getZ() < b->getZ();
+		}
 		void operator()( const ElementPtr & a ) const
-			{ std::cout << "  " << a->getIndex() << ' ' << a->getZ() << ' ' << a->getSymbol() << ' ' << a->getName() << '\n'; }
+			{ std::cout << "  " << a->getMelt() << ' ' << a->getZ() << ' ' << a->getSymbol() << ' ' << a->getName() << '\n'; }
 	};
 	Coll<ElementPtr, MyOps> myColl{};
 
