@@ -382,6 +382,73 @@ int test6(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using BondPtr = std::shared_ptr<Tracker>;
+
+struct BondOps
+{
+	bool operator()( const BondPtr & a, const BondPtr & b ) const
+		{ return *a < *b; }
+	void operator()( const BondPtr & a ) const
+		{ std::cout << "  " << *a << '\n'; }
+	void operator()( size_t i, const BondPtr & a ) const
+		{ std::cout << "[" << i << "]\t" << *a << '\n'; }
+};
+
+Coll<BondPtr, BondOps> test7a(void)
+{
+	std::cout << "\n";
+	std::cout << "test7a() - array test\n";
+	std::cout << "\n";
+
+	std::cout << "Initialise array\n";
+	Tracker bonds[] = {
+		{ 7, "Connery" },
+		{ 1, "Niven" },
+		{ 1, "Lazenby" },
+		{ 7, "Moore" },
+		{ 2, "Dalton" },
+		{ 4, "Brosnan" },
+		{ 5, "Craig" },
+	};
+	DUMPARRAY(bonds);
+
+	const int first{};
+	const int last{ELEMENTS(bonds)};
+	Coll<BondPtr, BondOps> bondColl{};
+	for (int i{first}; i < last; ++i)
+	{
+		const BondPtr bond_ptr = std::make_shared<Tracker>(bonds[i]);
+		bondColl.insert(bond_ptr);
+	}
+	bondColl.loaded();
+	std::cout << "bondColl loaded\n";
+
+	std::cout << "\n";
+	std::cout << "test7a() done.\n";	
+
+	return bondColl;
+}
+
+int test7(void)
+{
+	std::cout << "\n";
+	std::cout << "test7() - array test\n\n";
+
+	Coll<BondPtr, BondOps> bondColl{test7a()};
+
+	std::cout << "\n";
+	std::cout << "bondColl loaded\n";
+	bondColl.display(BondOps());
+	std::cout << "\n";
+
+	std::cout << "test7() done." << std::endl;
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char *argv[])
 {
 	std::cout << "main()\n\n";
@@ -397,7 +464,8 @@ int main(int argc, char *argv[])
 		case 4:	test4();	break;
 		case 5:	test5();	break;
 		case 6:	test6();	break;
-		
+		case 7:	test7();	break;
+
 		default:
 			std::cerr << argv[i] << " not found!";
 			break;

@@ -17,7 +17,7 @@ EXE = test
 
 $(EXE):	$(objects) $(headers)
 	$(CC) $(options)  -o $(EXE) $(objects)
-	./$(EXE) 0 1 2 3 4 5 6 > out2.txt
+	./$(EXE) 0 1 2 3 4 5 6 7 > out2.txt
 
 %.o : %.cpp $(headers)
 	$(CC) $(options)  -c -o $@ $<
