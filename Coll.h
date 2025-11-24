@@ -57,13 +57,16 @@ public:
 
     size_t size(void) const { return _vector.size(); }
 
+    using CIterator = typename std::vector<T>::const_iterator;
+    const CIterator begin(void) const { return _vector.begin(); }
+    const CIterator end(void) const { return _vector.end(); }
+
     using Iterator = typename std::vector<T>::iterator;
     Iterator begin(void) { return _vector.begin(); }
     Iterator end(void) { return _vector.end(); }
 
     size_t display(Compare func) const;
     size_t display(void) const;
-    // std::string toString(void) const;
 
 };
 

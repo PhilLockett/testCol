@@ -429,6 +429,25 @@ Coll<BondPtr, BondOps> test7a(void)
 	return bondColl;
 }
 
+void test7b(const Coll<BondPtr, BondOps> & coll)
+{
+	std::cout << "\n";
+	std::cout << "test7b() - const array test\n";
+	std::cout << "\n";
+
+	std::cout << "coll display()\n";
+	coll.display(BondOps());
+	std::cout << "\n";
+	std::cout << "coll iterate\n";
+	for (const auto & item : coll)
+	{
+		std::cout << *item << "\n";
+	}
+
+	std::cout << "\n";
+	std::cout << "test7b() done.\n";	
+}
+
 int test7(void)
 {
 	std::cout << "\n";
@@ -438,7 +457,16 @@ int test7(void)
 
 	std::cout << "\n";
 	std::cout << "bondColl loaded\n";
+	std::cout << "bondColl display()\n";
 	bondColl.display(BondOps());
+	std::cout << "\n";
+	std::cout << "bondColl iterate\n";
+	for (const auto & item : bondColl)
+	{
+		std::cout << *item << "\n";
+	}
+	
+	test7b(bondColl);
 	std::cout << "\n";
 
 	std::cout << "test7() done." << std::endl;
