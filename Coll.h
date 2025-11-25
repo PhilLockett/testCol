@@ -28,6 +28,7 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <functional>
 
 template<typename T = std::string, class Compare = std::less<T>>
 class Coll
@@ -66,6 +67,7 @@ public:
     Iterator end(void) { return _vector.end(); }
 
     size_t display(Compare func) const;
+    size_t display(std::function<void(size_t i, const T & a)> func) const;
     size_t display(void) const;
 
 };
@@ -142,6 +144,23 @@ size_t Coll<T, Compare>::display(Compare func) const
     return i;
 }
 
+/**
+ * @brief Display all items in the collection.
+ * 
+ * @tparam T type of items in the collection.
+ * @tparam Compare function object that defines the sorting order.
+ * @param func function to call for each item in the collection.
+ * @return size_t number of items displayed.
+ */
+template<typename T, class Compare>
+size_t Coll<T, Compare>::display(std::function<void(size_t i, const T & a)> func) const
+{
+    size_t i{};
+    for (const T & item : _vector)
+        func(i++, item);
+
+    return i;
+}
 
 /**
  * @brief Display all items in the collection.

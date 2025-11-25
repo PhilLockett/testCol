@@ -54,10 +54,10 @@ private:
 	}
 
 public:
-    friend std::ostream & operator<<(std::ostream &os, const Tracker &A)
+	friend std::ostream & operator<<(std::ostream &os, const Tracker &A)
 	{
 		A.display(os);
-        
+
         return os;
 	}
 

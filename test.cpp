@@ -429,23 +429,32 @@ Coll<BondPtr, BondOps> test7a(void)
 	return bondColl;
 }
 
-void test7b(const Coll<BondPtr, BondOps> & coll)
+void test7b(std::ostream & os, const Coll<BondPtr, BondOps> & coll)
 {
-	std::cout << "\n";
-	std::cout << "test7b() - const array test\n";
-	std::cout << "\n";
+	os << "\n";
+	os << "test7b() - const array test\n";
+	os << "\n";
 
-	std::cout << "coll display()\n";
-	coll.display(BondOps());
-	std::cout << "\n";
-	std::cout << "coll iterate\n";
+	os << "coll display() using a lambda\n";
+    auto lineOut = [&os](size_t i, const BondPtr & a) { os << "[" << i << "] = " << *a << '\n'; };
+	coll.display(lineOut);
+	os << "\n";
+
+	os << "coll iterate\n";
 	for (const auto & item : coll)
 	{
-		std::cout << *item << "\n";
+		os << "  " << *item << "\n";
 	}
+	os << "\n";
 
-	std::cout << "\n";
-	std::cout << "test7b() done.\n";	
+	os << "coll for loop\n";
+	for (int i{}; i < coll.size(); ++i)
+	{
+		os << "  coll[" << i << "] = (" << *coll[i] << ")\n";
+	}
+	os << "\n";
+
+	os << "test7b() done.\n";	
 }
 
 int test7(void)
@@ -466,7 +475,7 @@ int test7(void)
 		std::cout << *item << "\n";
 	}
 	
-	test7b(bondColl);
+	test7b(std::cout, bondColl);
 	std::cout << "\n";
 
 	std::cout << "test7() done." << std::endl;
