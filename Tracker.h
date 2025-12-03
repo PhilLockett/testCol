@@ -35,18 +35,15 @@
  * Implementation of the Tracker class.
  */
 
-
 class Tracker
 {
+#define DISPLAY_COMP(oper) std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") " << oper << " 0 " << comp << std::endl;
+#define REVEAL(action) std::cout << *this << " " << action << std::endl;
+
 private:
 	int id;
 	int count;
 	std::string name;
-
-	void reveal(const std::string & action) const
-	{
-		std::cout << *this << " " << action << std::endl;
-	}
 
 	void display(std::ostream & os) const
 	{
@@ -61,7 +58,6 @@ public:
         return os;
 	}
 
-#define DISPLAY_COMP(oper) std::cout << std::boolalpha << "compare(" << *this << ", " << rhs << ") " << oper << " 0 " << comp << std::endl;
     int compare(const Tracker & rhs) const
 	{
 		if (const int diff{id - rhs.id}; diff != 0) return diff;
@@ -102,7 +98,7 @@ public:
 	// Constructor.
 	Tracker(int i, std::string n) : id{i}, count{}, name{n}
 	{
-		reveal("constructed");
+		REVEAL("constructed")
 	}
 
 
@@ -119,13 +115,13 @@ public:
 	// Default constructor.
 	Tracker(void) : id{}, count{}, name{"EMPTY"}
 	{
-		reveal("default constructed");
+		REVEAL("default constructed")
 	}
 
 	// Copy constructor.
 	Tracker(const Tracker & b) : id(b.id), count{b.count+1}, name(b.name)
 	{
-		reveal("copy constructed");
+		REVEAL("copy constructed")
 	}
 
 	// Copy assignment.
@@ -134,13 +130,13 @@ public:
 		id = b.id;
 		count = b.count+1;
 		name = b.name;
-		reveal("copy assigned");
+		REVEAL("copy assigned")
 	}
 
 	// Move constructor.
 	Tracker(Tracker && b) noexcept : id(b.id), count{b.count+1}, name(std::move(b.name))
 	{
-		reveal("move constructed");
+		REVEAL("move constructed")
 	}
 
 	// Move assignment.
@@ -149,29 +145,39 @@ public:
 		id = b.id;
 		count = b.count+1;
 		name = std::move(b.name);
-		reveal("move assigned");
+		REVEAL("move assigned")
 	}
 
 	// Destructor.
 	virtual ~Tracker()
 	{
-		reveal("destroyed");
+		REVEAL("destroyed")
 	}
 
 };
 
+
+/**
+ * @section TrackerOps struct.
+ *
+ * Implementation of the TrackerOps struct providing some basic operations.
+ */
+
 struct TrackerOps
 {
+	// Uses Tracker::operator<() to sort Tracker objects.
 	bool operator()(const Tracker & lhs, const Tracker & rhs) const
 	{
 		return lhs < rhs;
 	}
 
+	// Send to std::cout, useful with for_each().
 	void operator()(const Tracker & a) const
 	{
 		std::cout << a << std::endl;
 	}
 
+	// Send to std::cout, used by Coll::display().
 	void operator()(size_t i, const Tracker & a) const
     {
 		std::cout << i << "\t" << a << "\n";

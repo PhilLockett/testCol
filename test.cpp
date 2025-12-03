@@ -1,8 +1,8 @@
 // Build using:
-//   g++ -o test test.cpp
+//   g++ -o test test.cpp electronconfigs.cpp Element_c.cpp
 //
 // Run using:
-//   ./test
+//   ./test <int> [<int>...]
 
 #include <iostream>
 #include <string>
@@ -76,7 +76,7 @@ void _dumpset(std::string name, const std::set<T> & v)
 
 int test0(void)
 {
-	std::cout << "\ntest0() - test basics\n\n";
+	std::cout << "\ntest0() - test move basics\n\n";
 
 	std::string s1{"initialised"};
 	std::cout << "s1 '" << s1 << "'\n";
@@ -95,15 +95,15 @@ int test0(void)
 
 int test1(void)
 {
-	std::cout << "\ntest1() - vector test\n\n";
+	std::cout << "\ntest1() - basic vector test\n\n";
 
-	Tracker a{10, "Adam"};
+	Tracker a{111, "Adam"};
 	std::vector<Tracker> humankind;
 	std::cout << "Populate vector using push_back()\n";
 	humankind.reserve(3);
 	humankind.push_back(a);
-	humankind.push_back({11, "Eve"});
-	humankind.push_back({12, "Devil"});
+	humankind.push_back({121, "Eve"});
+	humankind.push_back({122, "Devil"});
 	DUMP(humankind);
 
 	std::cout << '\n';
@@ -114,20 +114,20 @@ int test1(void)
 	std::cout << '\n';
 	std::cout << "Repopulate vector using emplace_back()\n";
 	humankind.push_back(a);
-	humankind.emplace_back(13, "Eve II");
-	humankind.emplace_back(14, "Devil II");
+	humankind.emplace_back(131, "Eve II");
+	humankind.emplace_back(132, "Devil II");
 	DUMP(humankind);
 
 	std::cout << "Replace item 1 -> [" << humankind[1] << "]\n";
-	humankind[1] = Tracker(20, "Kane");
+	humankind[1] = Tracker(141, "Kane");
 	DUMP(humankind);
 
 	std::cout << "Replace item 0 -> [" << humankind[0] << "]\n";
-	humankind[0] = Tracker(21, "Abel");
+	humankind[0] = Tracker(142, "Abel");
 	DUMP(humankind);
 
 	std::cout << "Append item beyond capacity\n";
-	humankind.emplace_back(22, "Oppenheimer");
+	humankind.emplace_back(151, "Oppenheimer");
 	DUMP(humankind);
 
 	std::cout << "\ntest1() done.\n";
@@ -152,19 +152,19 @@ std::vector<Tracker> test2a(void)
 
 	DUMP(list);
 
-	std::cout << "\ntest2a() done.\n";
+	std::cout << "\ntest2a() done - list should not be copied, moved or destroyed.\n";
 
-	return list;						// Destroy "first".
+	return list;						// Destroy "first" on exit.
 }
 
 int test2(void)
 {
-	std::cout << "\ntest2() - testing scope\n\n";
+	std::cout << "\ntest2() - testing vector scope\n\n";
 
 	std::vector<Tracker> myList = test2a();	// Move
 	DUMP(myList);
 
-	std::cout << "\ntest2() done.\n";
+	std::cout << "\ntest2() done - list should be destroyed.\n";
 
 	return 0;
 }
@@ -176,17 +176,20 @@ int test3(void)
 {
 	std::cout << "\ntest3() - testing loop scope\n\n";
 
-	Tracker a{30, "Adam"};
+	Tracker a{310, "Adam"};
+
+	std::cout << "\nwhile loop scope\n";
 	int i = 3;
 	while (i)
 	{
-		Tracker b{30 + i, "Ben"};
+		Tracker b{320 + i, "Ben"};
 		i--;
 	}
 
+	std::cout << "\nfor loop scope\n";
 	for (int i = 0; i < 2; ++i)
 	{
-		Tracker c{30 + i, "Chuck"};
+		Tracker c{330 + i, "Chuck"};
 	}
 
 	std::cout << "\ntest3() done.\n";
@@ -201,25 +204,25 @@ int test4(void)
 {
 	std::cout << "\ntest4() - array test\n\n";
 
-	Tracker a{40, "Larry"};
+	Tracker a{411, "Larry"};
 	Tracker stooges[3];
 	stooges[0] = a;
-	stooges[1] = {41, "Curly"};
-	stooges[2] = {42, "Moe"};
+	stooges[1] = {421, "Curly"};
+	stooges[2] = {422, "Moe"};
 	DUMPARRAY(stooges);
 
 	std::cout << "Replace item 1\n";
-	stooges[1] = Tracker(43, "Shemp");
+	stooges[1] = Tracker(431, "Shemp");
 	DUMPARRAY(stooges);
 
-	std::cout << "Initialise array\n";
+	std::cout << "\nInitialised array\n";
 	Tracker bonds[] = {
-		{ 44, "Connery" },
-		{ 45, "Lazenby" },
-		{ 46, "Moore" },
-		{ 47, "Dalton" },
-		{ 48, "Brosnan" },
-		{ 49, "Craig" },
+		{ 441, "Connery" },
+		{ 442, "Lazenby" },
+		{ 443, "Moore" },
+		{ 444, "Dalton" },
+		{ 445, "Brosnan" },
+		{ 446, "Craig" },
 	};
 	DUMPARRAY(bonds);
 
@@ -233,37 +236,38 @@ int test4(void)
 
 int test5a(Coll<Tracker, TrackerOps> & coll)
 {
-	std::cout << "\ntest5a() - Coll test\n\n";
+	std::cout << "\ntest5a() - load Coll from an initialised vector.\n";
 
-	std::cout << "Building data.\n";
+	std::cout << "\nBuilding data.\n";
 	std::vector<Tracker> vals{
-		{ 50, "zero" },
-		{ 51, "one" },
-		{ 52, "two" },
+		{ 510, "zero" },
+		{ 511, "one" },
+		{ 512, "two" },
 	};
-	std::cout << "Collecting data.\n";
+
+	std::cout << "\nInserting data (uses move).\n";
 	for (auto &val : vals)
 	{
 		std::cout << "Inserting " << val << std::endl;
 
 		coll.insert(val);
 	}
-	// coll.add({ 50, "zero" });
-	// coll.add({ 51, "one" });
-	// coll.add({ 52, "two" });
+	// coll.add({ 520, "zero" });
+	// coll.add({ 521, "one" });
+	// coll.add({ 522, "two" });
 
-	std::cout << "Loading data.\n";
+	std::cout << "\nLoading data (into vector and map in coll).\n";
 	coll.loaded();
 	std::cout << "Data loaded.\n";
 
-	std::cout << "\ntest5a() done.\n";
+	std::cout << "\ntest5a() done - should not destroy coll.\n";
 
 	return 0;
 }
 
 int test5(void)
 {
-	std::cout << "\ntest5() - Coll test\n\n";
+	std::cout << "\ntest5() - remote Coll load test\n\n";
 
 	Coll<Tracker, TrackerOps> coll;
 	test5a(coll);
@@ -272,7 +276,7 @@ int test5(void)
 	coll.display();
 	std::cout << "\n";
 
-	std::cout << "test5() done." << std::endl;
+	std::cout << "test5() done - clean up coll." << std::endl;
 
 	return 0;
 }
@@ -296,6 +300,8 @@ Coll<ElementPtr, ElementOps> coll{};
 
 void initColZ(void)
 {
+	std::cout << "\ninitColZ() - load global Coll with shared_ptrs to large Objects\n\n";
+
 	const int first{ELEMENT_INDEX_FIRST};
 	const int last{ELEMENT_KNOWN_COUNT};
 	// const int last{20};
@@ -308,11 +314,12 @@ void initColZ(void)
 
 	coll.loaded();
 	std::cout << "coll loaded\n";
+	std::cout << "\ninitColZ() done.\n";
 }
 
 int test6a(void)
 {
-	std::cout << "\ntest6a() - set test\n\n";
+	std::cout << "\ntest6a() - load local Coll from global Coll test (no destruction)\n\n";
 
 	struct MyOps
 	{
@@ -347,7 +354,7 @@ int test6a(void)
 
 int test6(void)
 {
-	std::cout << "\ntest6() - set test\n\n";
+	std::cout << "\ntest6() - global Coll test (no destruction on function exit)\n\n";
 	initColZ();
 
 	test6a();
@@ -397,7 +404,7 @@ struct BondOps
 Coll<BondPtr, BondOps> test7a(void)
 {
 	std::cout << "\n";
-	std::cout << "test7a() - array test\n";
+	std::cout << "test7a() - load Coll from array and return Coll test\n";
 	std::cout << "\n";
 
 	std::cout << "Initialise array\n";
@@ -414,53 +421,59 @@ Coll<BondPtr, BondOps> test7a(void)
 
 	const int first{};
 	const int last{ELEMENTS(bonds)};
-	Coll<BondPtr, BondOps> bondColl{};
+	Coll<BondPtr, BondOps> bondCollection{};
 	for (int i{first}; i < last; ++i)
 	{
 		const BondPtr bond_ptr = std::make_shared<Tracker>(bonds[i]);
-		bondColl.add(bond_ptr);
+		bondCollection.add(bond_ptr);
 	}
-	bondColl.loaded();
-	std::cout << "bondColl loaded\n";
+	bondCollection.loaded();
+	std::cout << "bondCollection loaded\n";
 
 	std::cout << "\n";
-	std::cout << "test7a() done.\n";	
+	std::cout << "test7a() done - destroy bonds array but not bondCollection.\n";	
 
-	return bondColl;
+	return bondCollection;
 }
 
-void test7b(std::ostream & os, const Coll<BondPtr, BondOps> & coll)
+void test7b(std::ostream & os, const Coll<BondPtr, BondOps> & collRef)
 {
 	os << "\n";
-	os << "test7b() - const array test\n";
+	os << "test7b() - const Coll test - display using different methods.\n";
 	os << "\n";
 
 	os << "coll display() using a lambda\n";
     auto lineOut = [&os](size_t i, const BondPtr & a) { os << "[" << i << "] = " << *a << '\n'; };
-	coll.display(lineOut);
+	collRef.display(lineOut);
 	os << "\n";
 
-	os << "coll iterate\n";
-	for (const auto & item : coll)
+	os << "coll iterate over range\n";
+	for (const auto & bondPtr : collRef)
 	{
-		os << "  " << *item << "\n";
+		os << "  " << *bondPtr << "\n";
 	}
 	os << "\n";
 
 	os << "coll for loop\n";
-	for (int i{}; i < coll.size(); ++i)
+	for (int i{}; i < collRef.size(); ++i)
 	{
-		os << "  coll[" << i << "] = (" << *coll[i] << ")\n";
+		os << "  coll[" << i << "] = (" << *collRef[i] << ")\n";
 	}
 	os << "\n";
 
-	os << "test7b() done.\n";	
+    auto lineOut2 = [&os](const BondPtr & a) { os << "  [" << *a << "]\n"; };
+	os << "coll for_each()\n";
+	std::for_each( collRef.begin(), collRef.end(), lineOut2 );
+	os << "\n";
+
+	os << "test7b() done - does not destroy coll.\n";	
 }
 
 int test7(void)
 {
 	std::cout << "\n";
-	std::cout << "test7() - array test\n\n";
+	std::cout << "test7() - local Coll scope test\n";
+	std::cout << "\n";
 
 	Coll<BondPtr, BondOps> bondColl{test7a()};
 
@@ -469,16 +482,13 @@ int test7(void)
 	std::cout << "bondColl display()\n";
 	bondColl.display(BondOps());
 	std::cout << "\n";
-	std::cout << "bondColl iterate\n";
-	for (const auto & item : bondColl)
-	{
-		std::cout << *item << "\n";
-	}
-	
+	std::cout << "bondColl for_each()\n";
+	std::for_each( bondColl.begin(), bondColl.end(), BondOps() );
+
 	test7b(std::cout, bondColl);
 	std::cout << "\n";
 
-	std::cout << "test7() done." << std::endl;
+	std::cout << "test7() done - destroy bondColl." << std::endl;
 
 	return 0;
 }
@@ -488,7 +498,8 @@ int test7(void)
 
 int main(int argc, char *argv[])
 {
-	std::cout << "main()\n\n";
+	std::cout << "main()\n";
+
 	for (int i{1}; i < argc; ++i)
 	{
 		const int t{atoi(argv[i])};
@@ -509,11 +520,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	std::cout << "\ncoll display():\n";
+	std::cout << "\n";
+	std::cout << "Global Coll not destroyed test\n";
+	std::cout << "coll display():\n";
 	coll.display(ElementOps());
 	std::cout << "\n";
-
-	std::cout << "\nmain() done.\n";
+	std::cout << "main() done - destroy all data.\n";
 
 	return 0;
 }
