@@ -303,7 +303,7 @@ void initColZ(void)
 	for (int i = first; i <= last; ++i, ++ElementConf)
 	{
 		const ElementPtr element_ptr = std::make_shared<Element_c>(*ElementConf);
-		coll.insert(element_ptr);
+		coll.add(element_ptr);
 	}
 
 	coll.loaded();
@@ -330,7 +330,7 @@ int test6a(void)
 	std::cout << "Loading myColl\n";
 	for (const auto & item : coll)
 	{
-		myColl.insert(item);
+		myColl.add(item);
 	}
 	myColl.loaded();
 
@@ -418,7 +418,7 @@ Coll<BondPtr, BondOps> test7a(void)
 	for (int i{first}; i < last; ++i)
 	{
 		const BondPtr bond_ptr = std::make_shared<Tracker>(bonds[i]);
-		bondColl.insert(bond_ptr);
+		bondColl.add(bond_ptr);
 	}
 	bondColl.loaded();
 	std::cout << "bondColl loaded\n";

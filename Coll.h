@@ -42,7 +42,7 @@ public:
     Coll() : _set{}, _vector{}, _map{} {}
     // virtual ~Coll() {}
 
-    typename std::set<T, Compare>::iterator insert(const T & target);
+    typename std::set<T, Compare>::iterator add(const T & target);
     typename std::set<T, Compare>::iterator insert(T & target);
 
     void loaded(void);
@@ -74,7 +74,7 @@ public:
 
 
 /**
- * @brief Add an entry to the collection, iff it isn't already present.
+ * @brief Copy an entry to the collection, iff it isn't already present.
  * 
  * @tparam T type of items in the collection.
  * @tparam Compare function object that defines the sorting order.
@@ -82,7 +82,7 @@ public:
  * @return std::set<T, Compare>::iterator for entry in the collection.
  */
 template<typename T, class Compare>
-typename std::set<T, Compare>::iterator Coll<T, Compare>::insert(const T & target)
+typename std::set<T, Compare>::iterator Coll<T, Compare>::add(const T & target)
 {
     const auto result{_set.insert(target)};
 
