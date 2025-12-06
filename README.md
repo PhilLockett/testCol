@@ -17,6 +17,27 @@ For large objects the use of std::shared_ptr is highly recommended.
 Use of a std::shared_ptr will require a Compare function object to dereference 
 the pointer.
 
+    // Declare collection.
+    Coll words;
+
+    // Fill collection.
+    words.add("Apple");       // Copy object into collection.
+    words.insert("Banana");   // Move object into collection.
+    .
+    .
+    .
+    words.loaded();           // All data added.
+
+    // Iterate over collection if necessary.
+    for (const auto &word : words)
+    {
+        // Process data.
+    }
+
+    // Access collection.
+    const auto index{words.getIndex("Apple")};
+    const auto & word{words[1]};
+
 ## Cloning and Running
 To clone, build and run this code, execute the following unix/linux commands:
 
