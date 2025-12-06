@@ -76,7 +76,7 @@ void _dumpset(std::string name, const std::set<T> & v)
 
 int test0(void)
 {
-	std::cout << "\ntest0() - test move basics\n\n";
+	std::cout << "\ntest0() - test move basics and default Coll usage\n\n";
 
 	std::string s1{"initialised"};
 	std::cout << "s1 '" << s1 << "'\n";
@@ -85,7 +85,47 @@ int test0(void)
 	std::cout << "s1 '" << s1 << "'\n";
 	std::cout << "s2 '" << s2 << "'\n";
 
-	std::cout << "\ntest0() done.\n";
+	std::cout << "\n";
+	std::cout << "Use MarxBrothers, a default Coll\n";
+	std::cout << "\n";
+
+	using namespace std::string_literals;
+
+	Coll MarxBrothers;
+	std::string name1{"Chico"};
+	const std::string name2{"Harpo"};
+	const std::string name3{"Groucho"};
+	const char * name4 = "Zeppo";
+
+	MarxBrothers.insert(name1);
+	MarxBrothers.insert(const_cast<std::string &>(name2));
+	MarxBrothers.add(name3);
+	MarxBrothers.add(name3);		// Silently dropped.
+	MarxBrothers.add("Gummo");
+	MarxBrothers.add(name4);
+
+	MarxBrothers.loaded();
+	std::cout << "MarxBrothers loaded\n";
+
+	std::cout << "MarxBrothers display() using defaults\n";
+	MarxBrothers.display();
+
+	std::cout << "\n";
+	std::cout << "name1: \"" << name1 << "\"\n";
+	std::cout << "name2: \"" << name2 << "\"\n";
+	std::cout << "name3: \"" << name3 << "\"\n";
+	std::cout << "name4: \"" << name4 << "\"\n";
+	std::cout << "\n";
+	std::cout << "\"Gummo\": " << MarxBrothers.getIndex("Gummo") << "\n";
+	std::cout << "\"" << name3 << "\": " << MarxBrothers.getIndex(name3) << "\n";
+	std::cout << "\"" << name4 << "\": " << MarxBrothers.getIndex(name4) << "\n";
+	std::cout << "\n";
+	std::cout << "MarxBrothers[0]: \"" << MarxBrothers.getValue(0) << "\"\n";
+	std::cout << "MarxBrothers[1]: \"" << MarxBrothers[1] << "\"\n";
+	std::cout << "Last MarxBrothers: \"" << MarxBrothers.getValue(MarxBrothers.size()-1) << "\"\n";
+	std::cout << "\n";
+
+	std::cout << "test0() done.\n";
 
 	return 0;
 }
@@ -95,7 +135,7 @@ int test0(void)
 
 int test1(void)
 {
-	std::cout << "\ntest1() - basic vector test\n\n";
+	std::cout << "\ntest1() - basic vector move test\n\n";
 
 	Tracker a{111, "Adam"};
 	std::vector<Tracker> humankind;
