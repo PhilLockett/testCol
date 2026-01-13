@@ -533,6 +533,21 @@ int test7(void)
 	return 0;
 }
 
+void help(const char *arg)
+{
+	std::cout << "\nError, option '" << arg << "' not found!\n\n";
+	std::cout << "Options available:\n";
+	std::cout << "\t0 - test move basics and default Coll usage\n";
+	std::cout << "\t1 - basic vector move test\n";
+	std::cout << "\t2 - testing vector scope\n";
+	std::cout << "\t3 - testing loop scope\n";
+	std::cout << "\t4 - array test\n";
+	std::cout << "\t5 - remote Coll load test\n";
+	std::cout << "\t6 - global Coll test (no destruction on function exit)\n";
+	std::cout << "\t7 - local Coll scope test\n";
+
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -542,7 +557,15 @@ int main(int argc, char *argv[])
 
 	for (int i{1}; i < argc; ++i)
 	{
-		const int t{atoi(argv[i])};
+		const char *arg{argv[i]};
+		if (!isdigit(*arg))
+		{
+			help(arg);
+
+			continue;
+		}
+
+		const int t{atoi(arg)};
 		switch (t)
 		{
 		case 0:	test0();	break;
@@ -555,7 +578,7 @@ int main(int argc, char *argv[])
 		case 7:	test7();	break;
 
 		default:
-			std::cerr << argv[i] << " not found!";
+			help(arg);
 			break;
 		}
 	}
